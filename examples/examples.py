@@ -414,6 +414,7 @@ class ModelWrapper(nn.Module):
         if args.cuda:
             self.model.cuda()
 
+
         self.optimizer = OptimizerWrapper(
             model
         )
@@ -495,7 +496,12 @@ class SaveModel(object):
         checkpoint = None
         if len(args.resume) > 0:
             if os.path.isfile(args.resume):
-                checkpoint = torch.load(args.resume)
+                device = torch.device('mps') if torch.backends.mps.is_available() else torch.device('cpu')
+
+                # print the device loaded to
+                print(f"Loading checkpoint to device: {device}")
+
+                checkpoint = torch.load(args.resume, map_location=device)
 
                 non_default = {
                     opt.dest: getattr(args, opt.dest)
@@ -930,6 +936,14 @@ class Runner(object):
 
             if args.cuda:
                 data, target = data.cuda(), target.cuda()
+
+
+            device = torch.device('mps') if torch.backends.mps.is_available() else torch.device('cpu')
+
+            # set the device for the model
+            model.to(device)
+            data = data.to(device)
+            target = target.to(device)
 
             data_size = data.size(0)
 

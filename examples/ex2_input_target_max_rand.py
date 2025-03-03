@@ -15,11 +15,15 @@ def main():
     if args.sigprop:
         input_ch = None
 
+        monitor_cls = sigprop.monitors.loss.LabelMetrics
+        monitor_main = sigprop.monitors.Group()
+
         sp_manager = sigprop.managers.Preset(
             sigprop.models.Forward,
             sigprop.propagators.Loss,
             sigprop.propagators.signals.Loss,
-            build_optimizer
+            build_optimizer,
+            monitor_cls, monitor_main
         )
         input_shape = (dataset_info.num_classes,)
         input_ch = 128
